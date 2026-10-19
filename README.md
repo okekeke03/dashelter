@@ -23,6 +23,16 @@
 | `scripts/` | 避難所データを整形・分割する Python スクリプト |
 | `docs/` | 設計メモ |
 
+## 避難所データの作り方
+
+国土地理院のデータをダウンロードし、2次メッシュ(約10km四方)ごとに分けて `web/public/data/shelters/` に書き出します。Python 3 の標準ライブラリだけで動きます。
+
+```sh
+python -I scripts/build_shelters.py            # 東京都
+python -I scripts/build_shelters.py 13 14      # 複数の都道府県
+python -I -m unittest discover -s scripts      # テスト
+```
+
 ## データの出典(予定)
 
 - 指定緊急避難場所データ:国土地理院
