@@ -1,0 +1,455 @@
+/* 状態の色は、気象庁・内閣府の警戒レベルの色にそろえる(5 黒・4 紫・3 赤・2 黄) */
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --text: #1b1f24;
+  --muted: #5b6573;
+  --border: #d9dee5;
+  --brand: #112d4e;
+  --accent: #1565c0;
+  --warn-bg: #fff4d6;
+  --warn-border: #e0a100;
+
+  --emergency: #111111;
+  --evacuate: #7b1fa2;
+  --prepare: #c62828;
+  --unknown: #546e7a;
+  --stay: #1565c0;
+  --caution: #f2c200;
+  --safe: #2e7d32;
+
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+a {
+  color: var(--accent);
+}
+
+.wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.small {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ヘッダー */
+.site-header {
+  background: var(--brand);
+  color: #fff;
+  padding: 20px 0 18px;
+}
+.site-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+}
+.site-header p {
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  opacity: 0.9;
+}
+
+/* 操作 */
+.controls {
+  margin: 20px 0 8px;
+}
+.btn-primary,
+.btn-secondary {
+  font: inherit;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 3px 10px rgba(21, 101, 192, 0.3);
+}
+.btn-secondary {
+  padding: 10px 16px;
+  color: var(--accent);
+  background: #e3edf9;
+}
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #f2c200;
+  outline-offset: 2px;
+}
+.is-busy .btn-primary,
+.is-busy .btn-secondary {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.demo {
+  margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.demo summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.demo-body {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+.demo-body label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+.demo-body select {
+  font: inherit;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+}
+.demo-body .btn-secondary {
+  justify-self: start;
+}
+
+.progress {
+  min-height: 1.6em;
+  margin: 10px 0 0;
+  font-weight: 600;
+  color: var(--muted);
+}
+.progress.is-error {
+  color: var(--prepare);
+}
+
+.demo-banner {
+  margin: 8px 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(45deg, #fff4d6, #fff4d6 10px, #ffe9a8 10px, #ffe9a8 20px);
+  border: 1px dashed var(--warn-border);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 判定カード */
+.status-card {
+  --c: var(--unknown);
+  --on-c: #fff;
+  background: var(--c);
+  color: var(--on-c);
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  margin: 8px 0 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+.status-card[data-status="emergency"] {
+  --c: var(--emergency);
+}
+.status-card[data-status="evacuate"] {
+  --c: var(--evacuate);
+}
+.status-card[data-status="prepare"] {
+  --c: var(--prepare);
+}
+.status-card[data-status="stay"] {
+  --c: var(--stay);
+}
+.status-card[data-status="caution"] {
+  --c: var(--caution);
+  --on-c: #1b1f24;
+}
+.status-card[data-status="safe"] {
+  --c: var(--safe);
+}
+.status-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+.headline {
+  margin: 4px 0 12px;
+  font-size: 1.55rem;
+  line-height: 1.35;
+  /* 日本語を文節で折り返し、1文字だけの行を作らない */
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+.headline:focus {
+  outline: none;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chips li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+.status-card[data-status="caution"] .chips li {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+.source-time {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+.actions {
+  margin: 12px 0 0;
+  padding: 12px 12px 12px 30px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  border-radius: 10px;
+}
+.actions li + li {
+  margin-top: 6px;
+}
+
+/* 注意 */
+.notice {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: var(--warn-bg);
+  border-left: 5px solid var(--warn-border);
+  border-radius: 8px;
+}
+.notice p {
+  margin: 0 0 6px;
+}
+.notice a {
+  font-weight: 700;
+}
+
+/* 避難場所 */
+.section-title {
+  margin: 20px 0 4px;
+  font-size: 1.15rem;
+}
+.map {
+  height: 300px;
+  margin: 10px 0 6px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  z-index: 0;
+}
+.overlay-toggle {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.shelter-pin {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--evacuate);
+  color: #fff;
+  font-weight: 800;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.shelters {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.shelter-card,
+.shelter-empty {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+.shelter-card.is-conditional {
+  border-color: var(--warn-border);
+}
+.shelter-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.shelter-head .pin {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--evacuate);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+.shelter-name {
+  flex: 1;
+  font-size: 1.05rem;
+}
+.distance {
+  flex: none;
+  font-weight: 700;
+  color: var(--muted);
+}
+.shelter-card p {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+}
+.address,
+.designations {
+  color: var(--muted);
+}
+.tag-other {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: #e3edf9;
+  color: var(--accent);
+  font-weight: 700;
+}
+.note.warn {
+  padding: 6px 10px;
+  background: var(--warn-bg);
+  border-radius: 6px;
+  font-weight: 700;
+}
+.route {
+  display: block;
+  margin-top: 12px;
+  padding: 11px;
+  border-radius: 8px;
+  background: var(--safe);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+.route:focus-visible {
+  outline: 3px solid #f2c200;
+  outline-offset: 2px;
+}
+
+/* 内訳・注意書き */
+.breakdown {
+  margin: 16px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.breakdown summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.breakdown table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.breakdown th,
+.breakdown td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.disclaimer {
+  margin: 16px 0 28px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* フッター */
+.site-footer {
+  margin-top: 24px;
+  padding: 20px 0 32px;
+  background: #e8ecf1;
+  font-size: 0.88rem;
+}
+.site-footer h2 {
+  font-size: 1rem;
+  margin: 16px 0 6px;
+}
+.site-footer h3 {
+  font-size: 0.92rem;
+  margin: 14px 0 4px;
+}
+.site-footer ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161c;
+    --surface: #1c222b;
+    --text: #e7ebf0;
+    --muted: #a3adba;
+    --border: #2f3946;
+    --accent: #6ea8ff;
+    --warn-bg: #3a2f10;
+  }
+  .site-footer {
+    background: #171c23;
+  }
+  .btn-secondary,
+  .tag-other {
+    background: #22324a;
+  }
+  .demo-body select {
+    background: var(--surface);
+  }
+  .demo-banner {
+    background: repeating-linear-gradient(45deg, #3a2f10, #3a2f10 10px, #4a3c14 10px, #4a3c14 20px);
+  }
+  .actions {
+    background: rgba(18, 22, 28, 0.92);
+  }
+  .breakdown th,
+  .breakdown td {
+    border-color: var(--border);
+  }
+}

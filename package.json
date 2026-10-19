@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test \"web/test/**/*.test.js\""
+    "test": "node --test \"test/**/*.test.js\"",
+    "dev": "node scripts/dev-server.mjs"
   }
 }

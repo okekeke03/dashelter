@@ -1,0 +1,1002 @@
+{
+ "source": {
+  "name": "国土地理院 指定緊急避難場所データ",
+  "page": "https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html",
+  "prefectures": [
+   "13"
+  ],
+  "builtAt": "2026-10-19T08:13:01+00:00"
+ },
+ "notice": [
+  "市町村長が指定した指定緊急避難場所を、各市町村が登録したデータです。最新でない場合や未掲載の場合があるため、最新の状況は各市町村に確認してください。",
+  "指定緊急避難場所は、災害の種類(洪水・土砂災害・地震など)ごとに指定されています。指定避難所(一定期間滞在するための施設)とは異なります。",
+  "データは随時更新されます。"
+ ],
+ "hazardKeys": {
+  "洪水": "flood",
+  "崖崩れ、土石流及び地滑り": "landslide",
+  "高潮": "storm_surge",
+  "地震": "earthquake",
+  "津波": "tsunami",
+  "大規模な火事": "fire",
+  "内水氾濫": "inland_flood",
+  "火山現象": "volcano"
+ },
+ "mesh": "2次メッシュ(緯度5分×経度7.5分、約10km四方)",
+ "count": 2272,
+ "meshes": {
+  "394271": {
+   "count": 4,
+   "bounds": [
+    26.583333,
+    142.125,
+    26.666667,
+    142.25
+   ]
+  },
+  "404241": {
+   "count": 1,
+   "bounds": [
+    27.0,
+    142.125,
+    27.083333,
+    142.25
+   ]
+  },
+  "404251": {
+   "count": 4,
+   "bounds": [
+    27.083333,
+    142.125,
+    27.166667,
+    142.25
+   ]
+  },
+  "493956": {
+   "count": 1,
+   "bounds": [
+    33.083333,
+    139.75,
+    33.166667,
+    139.875
+   ]
+  },
+  "503964": {
+   "count": 4,
+   "bounds": [
+    33.833333,
+    139.5,
+    33.916667,
+    139.625
+   ]
+  },
+  "513903": {
+   "count": 4,
+   "bounds": [
+    34.0,
+    139.375,
+    34.083333,
+    139.5
+   ]
+  },
+  "513904": {
+   "count": 7,
+   "bounds": [
+    34.0,
+    139.5,
+    34.083333,
+    139.625
+   ]
+  },
+  "513913": {
+   "count": 1,
+   "bounds": [
+    34.083333,
+    139.375,
+    34.166667,
+    139.5
+   ]
+  },
+  "513914": {
+   "count": 12,
+   "bounds": [
+    34.083333,
+    139.5,
+    34.166667,
+    139.625
+   ]
+  },
+  "513921": {
+   "count": 7,
+   "bounds": [
+    34.166667,
+    139.125,
+    34.25,
+    139.25
+   ]
+  },
+  "513942": {
+   "count": 1,
+   "bounds": [
+    34.333333,
+    139.25,
+    34.416667,
+    139.375
+   ]
+  },
+  "523902": {
+   "count": 3,
+   "bounds": [
+    34.666667,
+    139.25,
+    34.75,
+    139.375
+   ]
+  },
+  "523903": {
+   "count": 8,
+   "bounds": [
+    34.666667,
+    139.375,
+    34.75,
+    139.5
+   ]
+  },
+  "523912": {
+   "count": 4,
+   "bounds": [
+    34.75,
+    139.25,
+    34.833333,
+    139.375
+   ]
+  },
+  "523913": {
+   "count": 4,
+   "bounds": [
+    34.75,
+    139.375,
+    34.833333,
+    139.5
+   ]
+  },
+  "533923": {
+   "count": 82,
+   "bounds": [
+    35.5,
+    139.375,
+    35.583333,
+    139.5
+   ]
+  },
+  "533925": {
+   "count": 64,
+   "bounds": [
+    35.5,
+    139.625,
+    35.583333,
+    139.75
+   ]
+  },
+  "533926": {
+   "count": 2,
+   "bounds": [
+    35.5,
+    139.75,
+    35.583333,
+    139.875
+   ]
+  },
+  "533932": {
+   "count": 92,
+   "bounds": [
+    35.583333,
+    139.25,
+    35.666667,
+    139.375
+   ]
+  },
+  "533933": {
+   "count": 147,
+   "bounds": [
+    35.583333,
+    139.375,
+    35.666667,
+    139.5
+   ]
+  },
+  "533934": {
+   "count": 73,
+   "bounds": [
+    35.583333,
+    139.5,
+    35.666667,
+    139.625
+   ]
+  },
+  "533935": {
+   "count": 141,
+   "bounds": [
+    35.583333,
+    139.625,
+    35.666667,
+    139.75
+   ]
+  },
+  "533936": {
+   "count": 39,
+   "bounds": [
+    35.583333,
+    139.75,
+    35.666667,
+    139.875
+   ]
+  },
+  "533937": {
+   "count": 5,
+   "bounds": [
+    35.583333,
+    139.875,
+    35.666667,
+    140.0
+   ]
+  },
+  "533940": {
+   "count": 6,
+   "bounds": [
+    35.666667,
+    139.0,
+    35.75,
+    139.125
+   ]
+  },
+  "533941": {
+   "count": 39,
+   "bounds": [
+    35.666667,
+    139.125,
+    35.75,
+    139.25
+   ]
+  },
+  "533942": {
+   "count": 177,
+   "bounds": [
+    35.666667,
+    139.25,
+    35.75,
+    139.375
+   ]
+  },
+  "533943": {
+   "count": 231,
+   "bounds": [
+    35.666667,
+    139.375,
+    35.75,
+    139.5
+   ]
+  },
+  "533944": {
+   "count": 261,
+   "bounds": [
+    35.666667,
+    139.5,
+    35.75,
+    139.625
+   ]
+  },
+  "533945": {
+   "count": 187,
+   "bounds": [
+    35.666667,
+    139.625,
+    35.75,
+    139.75
+   ]
+  },
+  "533946": {
+   "count": 152,
+   "bounds": [
+    35.666667,
+    139.75,
+    35.75,
+    139.875
+   ]
+  },
+  "533947": {
+   "count": 51,
+   "bounds": [
+    35.666667,
+    139.875,
+    35.75,
+    140.0
+   ]
+  },
+  "533951": {
+   "count": 28,
+   "bounds": [
+    35.75,
+    139.125,
+    35.833333,
+    139.25
+   ]
+  },
+  "533952": {
+   "count": 109,
+   "bounds": [
+    35.75,
+    139.25,
+    35.833333,
+    139.375
+   ]
+  },
+  "533953": {
+   "count": 37,
+   "bounds": [
+    35.75,
+    139.375,
+    35.833333,
+    139.5
+   ]
+  },
+  "533954": {
+   "count": 96,
+   "bounds": [
+    35.75,
+    139.5,
+    35.833333,
+    139.625
+   ]
+  },
+  "533955": {
+   "count": 150,
+   "bounds": [
+    35.75,
+    139.625,
+    35.833333,
+    139.75
+   ]
+  },
+  "533956": {
+   "count": 37,
+   "bounds": [
+    35.75,
+    139.75,
+    35.833333,
+    139.875
+   ]
+  },
+  "533961": {
+   "count": 1,
+   "bounds": [
+    35.833333,
+    139.125,
+    35.916667,
+    139.25
+   ]
+  }
+ },
+ "municipalities": {
+  "13101": {
+   "name": "東京都千代田区",
+   "status": "",
+   "counts": {
+    "flood": 23,
+    "inland_flood": 14,
+    "landslide": 7,
+    "storm_surge": 21
+   }
+  },
+  "13102": {
+   "name": "東京都中央区",
+   "status": "",
+   "counts": {
+    "flood": 29,
+    "inland_flood": 29,
+    "landslide": 0,
+    "storm_surge": 29
+   }
+  },
+  "13103": {
+   "name": "東京都港区",
+   "status": "",
+   "counts": {
+    "flood": 35,
+    "inland_flood": 0,
+    "landslide": 56,
+    "storm_surge": 47
+   }
+  },
+  "13104": {
+   "name": "東京都新宿区",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13105": {
+   "name": "東京都文京区",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13106": {
+   "name": "東京都台東区",
+   "status": "",
+   "counts": {
+    "flood": 17,
+    "inland_flood": 17,
+    "landslide": 2,
+    "storm_surge": 17
+   }
+  },
+  "13107": {
+   "name": "東京都墨田区",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13108": {
+   "name": "東京都江東区",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13109": {
+   "name": "東京都品川区",
+   "status": "",
+   "counts": {
+    "flood": 12,
+    "inland_flood": 0,
+    "landslide": 5,
+    "storm_surge": 12
+   }
+  },
+  "13110": {
+   "name": "東京都目黒区",
+   "status": "",
+   "counts": {
+    "flood": 30,
+    "inland_flood": 30,
+    "landslide": 32,
+    "storm_surge": 0
+   }
+  },
+  "13111": {
+   "name": "東京都大田区",
+   "status": "",
+   "counts": {
+    "flood": 89,
+    "inland_flood": 89,
+    "landslide": 10,
+    "storm_surge": 89
+   }
+  },
+  "13112": {
+   "name": "東京都世田谷区",
+   "status": "",
+   "counts": {
+    "flood": 41,
+    "inland_flood": 10,
+    "landslide": 14,
+    "storm_surge": 0
+   }
+  },
+  "13113": {
+   "name": "東京都渋谷区",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13114": {
+   "name": "東京都中野区",
+   "status": "",
+   "counts": {
+    "flood": 15,
+    "inland_flood": 15,
+    "landslide": 5,
+    "storm_surge": 0
+   }
+  },
+  "13115": {
+   "name": "東京都杉並区",
+   "status": "",
+   "counts": {
+    "flood": 28,
+    "inland_flood": 28,
+    "landslide": 28,
+    "storm_surge": 0
+   }
+  },
+  "13116": {
+   "name": "東京都豊島区",
+   "status": "",
+   "counts": {
+    "flood": 34,
+    "inland_flood": 33,
+    "landslide": 33,
+    "storm_surge": 0
+   }
+  },
+  "13117": {
+   "name": "東京都北区",
+   "status": "",
+   "counts": {
+    "flood": 23,
+    "inland_flood": 0,
+    "landslide": 9,
+    "storm_surge": 20
+   }
+  },
+  "13118": {
+   "name": "東京都荒川区",
+   "status": "",
+   "counts": {
+    "flood": 55,
+    "inland_flood": 55,
+    "landslide": 3,
+    "storm_surge": 55
+   }
+  },
+  "13119": {
+   "name": "東京都板橋区",
+   "status": "",
+   "counts": {
+    "flood": 70,
+    "inland_flood": 17,
+    "landslide": 13,
+    "storm_surge": 0
+   }
+  },
+  "13120": {
+   "name": "東京都練馬区",
+   "status": "",
+   "counts": {
+    "flood": 153,
+    "inland_flood": 153,
+    "landslide": 11,
+    "storm_surge": 0
+   }
+  },
+  "13121": {
+   "name": "東京都足立区",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13122": {
+   "name": "東京都葛飾区",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13123": {
+   "name": "東京都江戸川区",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13201": {
+   "name": "東京都八王子市",
+   "status": "",
+   "counts": {
+    "flood": 117,
+    "inland_flood": 117,
+    "landslide": 122,
+    "storm_surge": 0
+   }
+  },
+  "13202": {
+   "name": "東京都立川市",
+   "status": "",
+   "counts": {
+    "flood": 36,
+    "inland_flood": 36,
+    "landslide": 36,
+    "storm_surge": 0
+   }
+  },
+  "13203": {
+   "name": "東京都武蔵野市",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13204": {
+   "name": "東京都三鷹市",
+   "status": "",
+   "counts": {
+    "flood": 31,
+    "inland_flood": 31,
+    "landslide": 35,
+    "storm_surge": 0
+   }
+  },
+  "13205": {
+   "name": "東京都青梅市",
+   "status": "",
+   "counts": {
+    "flood": 40,
+    "inland_flood": 40,
+    "landslide": 40,
+    "storm_surge": 0
+   }
+  },
+  "13206": {
+   "name": "東京都府中市",
+   "status": "",
+   "counts": {
+    "flood": 31,
+    "inland_flood": 39,
+    "landslide": 50,
+    "storm_surge": 0
+   }
+  },
+  "13207": {
+   "name": "東京都昭島市",
+   "status": "",
+   "counts": {
+    "flood": 29,
+    "inland_flood": 35,
+    "landslide": 40,
+    "storm_surge": 0
+   }
+  },
+  "13208": {
+   "name": "東京都調布市",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13209": {
+   "name": "東京都町田市",
+   "status": "",
+   "counts": {
+    "flood": 65,
+    "inland_flood": 65,
+    "landslide": 65,
+    "storm_surge": 0
+   }
+  },
+  "13210": {
+   "name": "東京都小金井市",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13211": {
+   "name": "東京都小平市",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 48,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13212": {
+   "name": "東京都日野市",
+   "status": "",
+   "counts": {
+    "flood": 36,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13213": {
+   "name": "東京都東村山市",
+   "status": "",
+   "counts": {
+    "flood": 18,
+    "inland_flood": 0,
+    "landslide": 22,
+    "storm_surge": 0
+   }
+  },
+  "13214": {
+   "name": "東京都国分寺市",
+   "status": "",
+   "counts": {
+    "flood": 20,
+    "inland_flood": 21,
+    "landslide": 26,
+    "storm_surge": 0
+   }
+  },
+  "13215": {
+   "name": "東京都国立市",
+   "status": "",
+   "counts": {
+    "flood": 3,
+    "inland_flood": 3,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13218": {
+   "name": "東京都福生市",
+   "status": "",
+   "counts": {
+    "flood": 25,
+    "inland_flood": 0,
+    "landslide": 29,
+    "storm_surge": 0
+   }
+  },
+  "13219": {
+   "name": "東京都狛江市",
+   "status": "",
+   "counts": {
+    "flood": 14,
+    "inland_flood": 15,
+    "landslide": 26,
+    "storm_surge": 0
+   }
+  },
+  "13220": {
+   "name": "東京都東大和市",
+   "status": "",
+   "counts": {
+    "flood": 25,
+    "inland_flood": 23,
+    "landslide": 26,
+    "storm_surge": 0
+   }
+  },
+  "13221": {
+   "name": "東京都清瀬市",
+   "status": "",
+   "counts": {
+    "flood": 25,
+    "inland_flood": 29,
+    "landslide": 28,
+    "storm_surge": 0
+   }
+  },
+  "13222": {
+   "name": "東京都東久留米市",
+   "status": "",
+   "counts": {
+    "flood": 17,
+    "inland_flood": 17,
+    "landslide": 17,
+    "storm_surge": 0
+   }
+  },
+  "13223": {
+   "name": "東京都武蔵村山市",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13224": {
+   "name": "東京都多摩市",
+   "status": "",
+   "counts": {
+    "flood": 31,
+    "inland_flood": 31,
+    "landslide": 25,
+    "storm_surge": 0
+   }
+  },
+  "13225": {
+   "name": "東京都稲城市",
+   "status": "",
+   "counts": {
+    "flood": 15,
+    "inland_flood": 0,
+    "landslide": 15,
+    "storm_surge": 0
+   }
+  },
+  "13227": {
+   "name": "東京都羽村市",
+   "status": "",
+   "counts": {
+    "flood": 13,
+    "inland_flood": 0,
+    "landslide": 13,
+    "storm_surge": 0
+   }
+  },
+  "13228": {
+   "name": "東京都あきる野市",
+   "status": "",
+   "counts": {
+    "flood": 46,
+    "inland_flood": 46,
+    "landslide": 47,
+    "storm_surge": 0
+   }
+  },
+  "13229": {
+   "name": "東京都西東京市",
+   "status": "",
+   "counts": {
+    "flood": 26,
+    "inland_flood": 0,
+    "landslide": 30,
+    "storm_surge": 0
+   }
+  },
+  "13303": {
+   "name": "東京都瑞穂町",
+   "status": "",
+   "counts": {
+    "flood": 5,
+    "inland_flood": 5,
+    "landslide": 5,
+    "storm_surge": 0
+   }
+  },
+  "13305": {
+   "name": "東京都日の出町",
+   "status": "",
+   "counts": {
+    "flood": 15,
+    "inland_flood": 15,
+    "landslide": 15,
+    "storm_surge": 0
+   }
+  },
+  "13307": {
+   "name": "東京都檜原村",
+   "status": "",
+   "counts": {
+    "flood": 10,
+    "inland_flood": 10,
+    "landslide": 10,
+    "storm_surge": 0
+   }
+  },
+  "13308": {
+   "name": "東京都奥多摩町",
+   "status": "データ未登録",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13361": {
+   "name": "東京都大島町",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13362": {
+   "name": "東京都利島村",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13363": {
+   "name": "東京都新島村",
+   "status": "指定緊急避難場所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13364": {
+   "name": "東京都神津島村",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 5,
+    "storm_surge": 7
+   }
+  },
+  "13381": {
+   "name": "東京都三宅村",
+   "status": "",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 13,
+    "storm_surge": 1
+   }
+  },
+  "13382": {
+   "name": "東京都御蔵島村",
+   "status": "",
+   "counts": {
+    "flood": 4,
+    "inland_flood": 4,
+    "landslide": 4,
+    "storm_surge": 4
+   }
+  },
+  "13401": {
+   "name": "東京都八丈町",
+   "status": "",
+   "counts": {
+    "flood": 1,
+    "inland_flood": 1,
+    "landslide": 1,
+    "storm_surge": 1
+   }
+  },
+  "13402": {
+   "name": "東京都青ヶ島村",
+   "status": "指定避難所データのみ公開",
+   "counts": {
+    "flood": 0,
+    "inland_flood": 0,
+    "landslide": 0,
+    "storm_surge": 0
+   }
+  },
+  "13421": {
+   "name": "東京都小笠原村",
+   "status": "",
+   "counts": {
+    "flood": 9,
+    "inland_flood": 0,
+    "landslide": 3,
+    "storm_surge": 8
+   }
+  }
+ }
+}

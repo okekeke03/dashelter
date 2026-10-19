@@ -3,7 +3,7 @@
 - 元データ(CSV)を data/raw/ にダウンロードする(すでにあれば再利用)
 - 項目名を英語のキーにそろえ、災害種別のフラグを配列にする
 - 座標が欠けている・日本の範囲外にあるデータは除外し、理由を集計する
-- 2次メッシュ(約10km四方)ごとに分割して web/public/data/shelters/ に書き出す
+- 2次メッシュ(約10km四方)ごとに分割して web/data/shelters/ に書き出す
 
 使い方(リポジトリのルートで実行):
     python -I scripts/build_shelters.py            # 東京都
@@ -24,10 +24,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "data" / "raw"
-OUT_DIR = ROOT / "web" / "public" / "data" / "shelters"
+OUT_DIR = ROOT / "web" / "data" / "shelters"
 
 SOURCE_URL = "https://hinanmap.gsi.go.jp/hinanjocp/defaultFtpData/csv/{pref:02d}000_2.csv"
 SOURCE_PAGE = "https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html"
+# 市町村ごとの公開状況(「指定避難所データのみ公開」「データ未登録」など)
+HISTORY_URL = "https://hinanmap.gsi.go.jp/hinanjocp/defaultFtpData/publicHistoryCSV/publicHistoryListData.csv"
+
+# 大雨の判定で使う種別。市町村ごとに件数を数え、データの空白を画面で知らせるのに使う。
+RAIN_RELATED = ["flood", "inland_flood", "landslide", "storm_surge"]
 
 # 元データの列名 → アプリで使うキー
 HAZARD_COLUMNS = {
@@ -70,12 +75,11 @@ def mesh2_bounds(code):
     return [round(south, 6), round(west, 6), round(south + 1 / 12, 6), round(west + 1 / 8, 6)]
 
 
-def download(pref, refresh):
+def download(url, name, refresh):
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    path = RAW_DIR / f"{pref:02d}000_2.csv"
+    path = RAW_DIR / name
     if path.exists() and not refresh:
         return path
-    url = SOURCE_URL.format(pref=pref)
     print(f"ダウンロード: {url}")
     with urllib.request.urlopen(url, timeout=60) as res, open(path, "wb") as f:
         shutil.copyfileobj(res, f)
@@ -114,6 +118,8 @@ def parse_row(row, dropped, odd_flags):
 
     return {
         "id": shelter_id,
+        # 共通ID は「E + 市町村コード5桁 + 連番」
+        "muni": shelter_id[1:6],
         "name": name,
         "address": (row.get("住所") or "").strip(),
         "lat": round(lat, 6),
@@ -124,6 +130,34 @@ def parse_row(row, dropped, odd_flags):
     }
 
 
+def coverage(prefs, shelters, refresh):
+    """区市町村ごとの公開状況と、大雨に関係する種別ごとの件数。
+
+    国土地理院のデータには、指定緊急避難場所を公開していない区市町村や、
+    洪水などの指定が 0 件の区市町村がある。画面でその旨を知らせるために使う。
+    """
+    path = download(HISTORY_URL, "publicHistoryListData.csv", refresh)
+    wanted = {f"{p:02d}" for p in prefs}
+    counts = {}
+    for s in shelters:
+        c = counts.setdefault(s["muni"], Counter())
+        c.update(h for h in s["hazards"] if h in RAIN_RELATED)
+
+    result = {}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        # 列: 市町村コード, 名称, 公開日, 最終更新日, 状況コード, 特筆事項
+        for row in csv.reader(f):
+            if len(row) < 2 or row[0][:2] not in wanted:
+                continue
+            c = counts.get(row[0], Counter())
+            result[row[0]] = {
+                "name": row[1],
+                "status": row[5].strip() if len(row) > 5 else "",
+                "counts": {h: c[h] for h in RAIN_RELATED},
+            }
+    return dict(sorted(result.items()))
+
+
 def build(prefs, refresh):
     shelters = {}
     dropped = Counter()
@@ -132,7 +166,7 @@ def build(prefs, refresh):
     total = 0
 
     for pref in prefs:
-        path = download(pref, refresh)
+        path = download(SOURCE_URL.format(pref=pref), f"{pref:02d}000_2.csv", refresh)
         with open(path, encoding="utf-8-sig", newline="") as f:
             for row in csv.DictReader(f):
                 total += 1
@@ -171,9 +205,13 @@ def build(prefs, refresh):
             code: {"count": len(items), "bounds": mesh2_bounds(code)}
             for code, items in sorted(meshes.items())
         },
+        "municipalities": coverage(prefs, shelters.values(), refresh),
     }
     with open(OUT_DIR / "index.json", "w", encoding="utf-8") as f:
         json.dump(index, f, ensure_ascii=False, indent=1)
+
+    gaps = [m["name"] for m in index["municipalities"].values() if not any(m["counts"].values())]
+    print(f"大雨に関係する避難場所が 0 件の区市町村: {len(gaps)} / {len(index['municipalities'])}")
 
     hazard_counts = Counter(h for s in shelters.values() for h in s["hazards"])
     sizes = sorted(len(items) for items in meshes.values())

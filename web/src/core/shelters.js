@@ -53,14 +53,59 @@ export function isConditional(shelter) {
   return CONDITIONAL_NOTE.test(shelter.note ?? "");
 }
 
+/**
+ * Google マップの徒歩ルート。目的地にピンが立ち、スマホでは dir_action=navigate でそのままナビが始まる
+ * (出発地が端末の現在地から離れている場合や PC では、ルートの表示まで)。
+ */
 export function walkingRouteUrl(origin, dest) {
   const params = new URLSearchParams({
     api: "1",
     origin: `${origin.lat},${origin.lon}`,
     destination: `${dest.lat},${dest.lon}`,
     travelmode: "walking",
+    dir_action: "navigate",
   });
   return `https://www.google.com/maps/dir/?${params}`;
+}
+
+export const HAZARD_MAP_PORTAL = {
+  label: "わがまちハザードマップ(国土交通省)",
+  url: "https://disaportal.gsi.go.jp/hazardmap/",
+};
+
+/** 「東京都江戸川区」→「江戸川区」 */
+export function municipalityName(municipalities, muni) {
+  const name = municipalities?.[muni]?.name;
+  return name ? name.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, "") : null;
+}
+
+/**
+ * 現在地の区市町村に、必要な種別の避難場所がデータ上あるかを調べ、なければ注意を返す。
+ * (国土地理院のデータには、指定緊急避難場所を公開していない区市町村や、洪水などの指定が 0 件の区市町村がある)
+ *
+ * @param {Record<string, {name: string, status: string, counts: Record<string, number>}>} municipalities index.json の municipalities
+ * @param {string | null} muni 現在地の市町村コード
+ * @param {string[][]} requirements
+ * @returns {{text: string, link: {label: string, url: string}} | null}
+ */
+export function coverageNotice(municipalities, muni, requirements) {
+  if (requirements.length === 0) return null;
+  const entry = muni ? municipalities?.[muni] : null;
+  if (!entry) {
+    return {
+      text: "現在地の区市町村は、このアプリの避難場所データの対象外です(現在は東京都のみ)。区市町村のハザードマップと避難情報を確認してください。",
+      link: HAZARD_MAP_PORTAL,
+    };
+  }
+  const name = municipalityName(municipalities, muni);
+  const total = Object.values(entry.counts).reduce((a, b) => a + b, 0);
+  const missing = total === 0 || requirements.some((anyOf) => anyOf.every((h) => !entry.counts[h]));
+  if (!missing) return null;
+  const why = entry.status ? `国土地理院のデータでは「${entry.status}」となっていて、` : "";
+  return {
+    text: `${name}は、${why}この災害に対応した避難場所がデータ上ありません。下の一覧は他の区市町村の避難場所です。${name}のハザードマップと避難情報(区域外への広域避難など)を必ず確認してください。`,
+    link: HAZARD_MAP_PORTAL,
+  };
 }
 
 /**

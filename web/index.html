@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DASHELTER — 大雨のときの避難判断</title>
+    <meta
+      name="description"
+      content="気象庁の警報と国のハザードマップから、大雨のときに「とどまるか・避難するか」を判断し、近くの避難場所まで案内します。"
+    />
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="vendor/leaflet/leaflet.js" defer></script>
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <h1>DASHELTER</h1>
+        <p>大雨のとき、今いる場所に「とどまる」か「避難する」かを、気象庁の警報と国のハザードマップから判断します。</p>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="controls" aria-label="判定する">
+        <button id="locate" class="btn-primary" type="button">現在地で判定する</button>
+        <details class="demo">
+          <summary>デモモード(晴れの日でも、警報が出たときの動きを確認できます)</summary>
+          <div class="demo-body">
+            <label>場所 <select id="demo-place"></select></label>
+            <label>警報 <select id="demo-scenario"></select></label>
+            <button id="demo-run" class="btn-secondary" type="button">デモで判定する</button>
+            <p class="small">デモでは警報だけを仮のデータに差し替えます。危険区域・避難場所・判定のしかたは本番と同じです。</p>
+          </div>
+        </details>
+        <p id="progress" class="progress" role="status" aria-live="polite"></p>
+      </section>
+
+      <div id="demo-banner" class="demo-banner" hidden>デモモード:表示中の警報は仮のデータです</div>
+
+      <section id="result" hidden aria-label="判定結果">
+        <div id="status-card" class="status-card">
+          <p id="status-label" class="status-label"></p>
+          <h2 id="headline" class="headline" tabindex="-1"></h2>
+          <ul id="warnings" class="chips"></ul>
+          <p id="source-time" class="source-time"></p>
+          <ul id="actions" class="actions"></ul>
+        </div>
+
+        <div id="notices"></div>
+
+        <h2 id="shelters-title" class="section-title"></h2>
+        <p id="shelters-help" class="small"></p>
+        <div id="map" class="map" role="img" aria-label="現在地と避難場所の地図"></div>
+        <label class="overlay-toggle"><input id="overlay" type="checkbox" /> 洪水浸水想定区域を地図に重ねる</label>
+        <ol id="shelters" class="shelters"></ol>
+
+        <details class="breakdown">
+          <summary>判定の内訳</summary>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">災害</th>
+                <th scope="col">警報</th>
+                <th scope="col">今いる場所</th>
+                <th scope="col">判定</th>
+              </tr>
+            </thead>
+            <tbody id="breakdown"></tbody>
+          </table>
+          <p class="small">
+            警報レベルが3以上でも、今いる場所が危険区域の外なら「とどまる」と判定します(内閣府「避難情報に関するガイドライン」の考え方)。
+          </p>
+        </details>
+
+        <p id="disclaimer" class="disclaimer"></p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <h2>このアプリが判定していないこと</h2>
+        <ul>
+          <li>川ごとの氾濫情報(荒川の氾濫危険警報など)は判定していません。</li>
+          <li>内水(下水道などがあふれる浸水)のハザードマップが公開されていない地域では、区域外として扱われます。</li>
+          <li>避難場所のデータは現在、東京都のみです。区市町村によってはデータが公開されていません。</li>
+        </ul>
+        <h2>データの出典</h2>
+        <ul>
+          <li>
+            警報・注意報:<a href="https://www.jma.go.jp/bosai/warning/" target="_blank" rel="noopener">気象庁</a>
+          </li>
+          <li>
+            危険区域:<a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener">ハザードマップポータルサイト</a>(国土交通省・国土地理院)
+          </li>
+          <li>
+            避難場所:<a href="https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html" target="_blank" rel="noopener"
+              >国土地理院 指定緊急避難場所データ</a
+            >
+          </li>
+          <li>
+            地図:<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>、住所検索:国土地理院
+          </li>
+        </ul>
+        <h3>避難場所データのご利用上の注意(国土地理院)</h3>
+        <ul id="gsi-notice" class="small"></ul>
+      </div>
+    </footer>
+  </body>
+</html>

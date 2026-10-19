@@ -12,7 +12,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "web" / "public" / "data" / "jma-areas.json"
+OUT = ROOT / "web" / "data" / "jma-areas.json"
 SOURCE_URL = "https://www.jma.go.jp/bosai/common/const/area.json"
 
 

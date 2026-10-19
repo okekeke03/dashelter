@@ -53,6 +53,7 @@ class ParseRowTest(unittest.TestCase):
     def test_normal_row(self):
         shelter, dropped, odd = self.parse()
         self.assertEqual(shelter["hazards"], ["flood", "storm_surge", "earthquake"])
+        self.assertEqual(shelter["muni"], "13117")
         self.assertTrue(shelter["alsoShelter"])
         self.assertFalse(dropped or odd)
 
