@@ -1,0 +1,22 @@
+# 秘密情報(APIキーなど)
+.env
+.env.*
+.dev.vars
+
+# Node / ビルド
+node_modules/
+dist/
+.wrangler/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# ダウンロードした元データ(scripts/ で整形してから使う)
+data/raw/
+
+# OS / エディタ
+Thumbs.db
+.DS_Store
+.vscode/
