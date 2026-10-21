@@ -1,7 +1,7 @@
 // GET /api/municipality?lat=..&lon=..  →  {"muniCd": "13117"}
 //
 // 国土地理院の住所検索(逆ジオコーダ)の中継。逆ジオコーダは CORS に対応していないため、
-// ブラウザから直接は呼べない。Cloudflare Pages Functions として動く。
+// ブラウザから直接は呼べない。
 
 const GSI_URL = "https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress";
 
@@ -11,7 +11,8 @@ const json = (body, status, extraHeaders = {}) =>
     headers: { "content-type": "application/json; charset=utf-8", ...extraHeaders },
   });
 
-export async function onRequestGet({ request }) {
+/** @param {Request} request */
+export async function handleMunicipality(request) {
   const params = new URL(request.url).searchParams;
   const lat = Number(params.get("lat"));
   const lon = Number(params.get("lon"));

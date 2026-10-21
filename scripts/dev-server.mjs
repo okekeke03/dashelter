@@ -1,14 +1,14 @@
-// 手元で動かすための開発用サーバー(Node.js 標準機能のみ)。
-// - web/ を静的ファイルとして配信する
-// - /api/* は functions/ の Cloudflare Pages Functions をそのまま呼び出す
-// - web/_headers のヘッダー(CSP など)も本番と同じように付ける
+// 手元で動かすための開発用サーバー(Node.js 標準機能のみ)。本番(Cloudflare Workers)と同じ動きをまねる。
+// - web/ を静的ファイルとして配信し、web/_headers のヘッダー(CSP など)を付ける
+// - /api/* は worker/index.js をそのまま呼び出す(ヘッダーは Worker が付ける)
 //
 // 使い方(リポジトリのルートで): node scripts/dev-server.mjs  → http://localhost:8788
 
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
-import { pathToFileURL } from "node:url";
+
+import worker from "../worker/index.js";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const WEB = join(ROOT, "web");
@@ -41,18 +41,12 @@ async function loadHeaders() {
   }
 }
 
-async function handleApi(req, res, url) {
-  const name = url.pathname.replace(/^\/api\//, "");
-  if (!/^[a-z-]+$/.test(name)) return send(res, 404, "not found");
-  let mod;
-  try {
-    mod = await import(pathToFileURL(join(ROOT, "functions", "api", `${name}.js`)).href);
-  } catch {
-    return send(res, 404, "not found");
-  }
-  const handler = req.method === "GET" ? mod.onRequestGet : mod.onRequest;
-  if (!handler) return send(res, 405, "method not allowed");
-  const response = await handler({ request: new Request(`http://localhost${req.url}`, { method: req.method }) });
+// 本番では、静的ファイルに一致しないリクエストは Worker に渡り、Worker が env.ASSETS に任せる。
+// 開発用サーバーでは静的ファイルを先に自分で配信するので、ここに来るのは見つからなかった場合だけ。
+const env = { ASSETS: { fetch: async () => new Response("not found", { status: 404 }) } };
+
+async function handleApi(req, res) {
+  const response = await worker.fetch(new Request(`http://localhost${req.url}`, { method: req.method }), env);
   res.writeHead(response.status, Object.fromEntries(response.headers));
   res.end(Buffer.from(await response.arrayBuffer()));
 }
@@ -67,8 +61,8 @@ const securityHeaders = await loadHeaders();
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://localhost");
+    if (url.pathname.startsWith("/api/")) return await handleApi(req, res);
     for (const [k, v] of Object.entries(securityHeaders)) res.setHeader(k, v);
-    if (url.pathname.startsWith("/api/")) return await handleApi(req, res, url);
 
     let path = resolve(WEB, "." + decodeURIComponent(url.pathname));
     if (path !== WEB && !path.startsWith(WEB + sep)) return send(res, 403, "forbidden");

@@ -1,14 +1,14 @@
 import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 
-import { onRequestGet } from "../functions/api/municipality.js";
+import { handleMunicipality } from "../worker/municipality.js";
 
 const realFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = realFetch;
 });
 
-const call = (query) => onRequestGet({ request: new Request(`https://example.test/api/municipality?${query}`) });
+const call = (query) => handleMunicipality(new Request(`https://example.test/api/municipality?${query}`));
 
 test("市町村コードを返す", async () => {
   let requested;
