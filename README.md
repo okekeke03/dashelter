@@ -2,6 +2,9 @@
 
 大雨のとき「今いる場所にとどまるべきか、避難すべきか」を判断し、避難が必要なら近くの安全な避難所まで案内する Web アプリ。
 
+**公開中:https://dashelter.okekeke03.workers.dev**
+(デモ:[江戸川区でレベル4大雨危険警報](https://dashelter.okekeke03.workers.dev/?demo=edogawa&scenario=rain4) / [北区でレベル4大雨危険警報](https://dashelter.okekeke03.workers.dev/?demo=kita&scenario=rain4))
+
 > **開発中** — チーム開発で作ったプロトタイプ(3日間・AWS Cloud9)を、個人で設計からやり直しています。
 
 ## 設計の考え方
