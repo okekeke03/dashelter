@@ -1,0 +1,62 @@
+# D. データの自動更新: 毎週、国土地理院の避難場所データと気象庁の地域コード表を取り直す。
+# 変わっていればテストを通したうえでコミットし、main に push する(Cloudflare が自動で公開する)。
+# 壊れたデータ(件数の急な減少など)はスクリプトが書き出しを止め、テストが失敗すれば公開しない。
+name: データの自動更新
+
+on:
+  schedule:
+    - cron: "0 18 * * 0" # 毎週月曜 3:00(日本時間)
+  workflow_dispatch: # 手動でも実行できる
+
+permissions:
+  contents: write # 更新したデータをコミットするため
+
+# 同時に2つ動かさない
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      - name: 避難場所データを作り直す(国土地理院)
+        run: python -I scripts/build_shelters.py --refresh
+
+      - name: 気象庁の地域コード表を作り直す
+        run: python -I scripts/build_jma_areas.py
+
+      - name: 変更があるか確かめる
+        id: diff
+        run: |
+          if git diff --quiet -- web/data; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "データに変更はありません"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- web/data | tail -n 1
+          fi
+
+      - name: テスト(新しいデータで全部通ることを確かめる)
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          npm test
+          python -I -m unittest discover -s scripts
+
+      - name: コミットして push する
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data
+          git commit -m "データを自動更新(国土地理院・気象庁)"
+          git push

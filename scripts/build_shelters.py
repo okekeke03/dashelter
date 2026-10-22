@@ -21,7 +21,6 @@ import statistics
 import sys
 import urllib.request
 from collections import Counter
-from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -175,6 +174,7 @@ def coverage(prefs, shelters, refresh):
         c.update(h for h in s["hazards"] if h in RAIN_RELATED)
 
     result = {}
+    latest = ""
     with open(path, encoding="utf-8-sig", newline="") as f:
         # 列: 市町村コード, 名称, 公開日, 最終更新日, 状況コード, 特筆事項
         for row in csv.reader(f):
@@ -186,7 +186,11 @@ def coverage(prefs, shelters, refresh):
                 "status": row[5].strip() if len(row) > 5 else "",
                 "counts": {h: c[h] for h in RAIN_RELATED},
             }
-    return dict(sorted(result.items()))
+            if len(row) > 3 and row[3] > latest:
+                latest = row[3]
+    # 元データの最終更新日(各市町村の最終更新日のうち一番新しいもの)。
+    # 作った日時ではなくこれを記録するので、元データが変わらなければ出力も変わらない(自動更新で空のコミットを作らない)
+    return dict(sorted(result.items())), latest
 
 
 def outliers(shelters, municipalities):
@@ -232,13 +236,13 @@ def build(prefs, refresh, force):
     for shelter in shelters.values():
         meshes.setdefault(mesh2_code(shelter["lat"], shelter["lon"]), []).append(shelter)
 
-    municipalities = coverage(prefs, shelters.values(), refresh)
+    municipalities, source_updated = coverage(prefs, shelters.values(), refresh)
     index = {
         "source": {
             "name": "国土地理院 指定緊急避難場所データ",
             "page": SOURCE_PAGE,
             "prefectures": "all" if prefs == ALL_PREFS else [f"{p:02d}" for p in prefs],
-            "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "updatedAt": source_updated,
         },
         "notice": NOTICE,
         "hazardKeys": HAZARD_COLUMNS,

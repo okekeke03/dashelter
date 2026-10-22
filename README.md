@@ -1,5 +1,8 @@
 # DASHELTER
 
+[![テスト](https://github.com/okekeke03/dashelter/actions/workflows/test.yml/badge.svg)](https://github.com/okekeke03/dashelter/actions/workflows/test.yml)
+[![データの自動更新](https://github.com/okekeke03/dashelter/actions/workflows/update-data.yml/badge.svg)](https://github.com/okekeke03/dashelter/actions/workflows/update-data.yml)
+
 大雨のとき「今いる場所にとどまるべきか、避難すべきか」を判断し、避難が必要なら近くの安全な避難所まで案内する Web アプリ。
 
 **公開中:https://dashelter.okekeke03.workers.dev**
@@ -33,6 +36,13 @@ AI による補足を手元で試すには、リポジトリのルートに `.de
 ## 公開
 
 Cloudflare Workers(無料プラン)で公開しています。GitHub の `main` ブランチに push すると、Workers Builds が `npx wrangler deploy` を実行して自動で更新されます。
+
+GitHub Actions で次の2つを自動で行います。
+
+| ワークフロー | いつ | 内容 |
+|---|---|---|
+| [テスト](.github/workflows/test.yml) | push・プルリクエストのたび | Node.js と Python のテストを全部実行する |
+| [データの自動更新](.github/workflows/update-data.yml) | 毎週月曜 3:00(日本時間)、手動でも可 | 国土地理院の避難場所データと気象庁の地域コード表を取り直し、変わっていればテストを通したうえでコミットする(→ Cloudflare が自動で公開)。件数の急な減少など、壊れたデータの可能性があれば公開しない |
 
 ## 構成
 
