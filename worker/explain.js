@@ -20,25 +20,31 @@ const ZONE_KEYS = ["flood", "inland", "stormSurge", "sediment", "houseCollapse"]
 
 export const SYSTEM_INSTRUCTION = `あなたは防災アプリ「DASHELTER」の説明係です。
 避難の判定は、気象庁の警報とハザードマップにもとづくルールですでに決まっています。
-あなたの役割は、その判定と事実データを、利用者に分かりやすく説明することだけです。
-
-必ず守ること:
-- 入力の「事実データ」に書かれていることだけを使う。書かれていない情報(今後の天気、避難場所の設備や混雑、所要時間、道順、標高など)は書かない。
-- 判定を変えたり、弱めたり、強めたりしない。「安全です」「心配ありません」のような安全の保証もしない。
-- 数字(距離、浸水の深さ、警報レベルなど)は、事実データに書かれているものだけを使う。新しい数字を作らない。
-- 避難場所に触れるときは、事実データにある id の避難場所だけを使う。
-- やさしい日本語で、短く書く。URL や記号の装飾は使わない。
+画面には、判定・見出し・「アプリが示している行動」がすでに表示されています。
+あなたの役割は、その表示を補う短い説明を書くことです。画面の文を繰り返すだけの説明は不要です。
 
 出力(JSON):
-- summary: なぜこの判定になったのかの説明。100字以内。
-- advice: 今すぐできる行動のアドバイス。1〜3個、それぞれ60字以内。
-- shelters: 事実データの避難場所ごとの一言(id と comment、60字以内)。備考に開設の条件がある場合は必ず触れる。避難場所がなければ空の配列。`;
+- summary: なぜこの判定になったのかを、事実データ(警報の名前、今いる場所が危険区域の中か外か、浸水の深さなど)を根拠に説明する。見出しの言い換えだけにしない。100字以内。
+- advice: 「アプリが示している行動」に書かれていない、補足の行動を1〜3個。判定に合った一般的な防災の知識を使ってよい。
+  例: 避難するなら、動きやすい靴、両手が空くかばん、懐中電灯、家族への連絡、明るいうちの移動。
+      とどまるなら、停電や断水への備え、テレビ・ラジオ・自治体の情報の確認、家族の安否確認。
+  「アプリが示している行動」と同じ内容は書かない。それぞれ60字以内。
+- shelters: 避難場所ごとの一言。利用者が知っておくべき点があるときだけ書く。
+  例: 備考に開設の条件がある、今いる区市町村とは別の区市町村にある、備考に書かれた注意。
+  名前や距離を言い直すだけになる場合は、その避難場所は含めない(空の配列でもよい)。60字以内。
+
+必ず守ること:
+- 判定を変えたり、弱めたり、強めたりしない。「安全です」「心配ありません」のような安全の保証もしない。
+- 数字(距離、浸水の深さ、警報レベル、時間など)は、事実データに書かれているものだけを使う。新しい数字を作らない(「徒歩10分」なども書かない)。
+- 特定の場所や建物について、事実データにないこと(設備、混雑、標高、道順など)は書かない。今後の天気の予想も書かない。
+- 避難場所に触れるときは、事実データにある id の避難場所だけを使う。
+- やさしい日本語で、短く書く。URL や記号の装飾は使わない。`;
 
 export const OUTPUT_SCHEMA = {
   type: "object",
   properties: {
     summary: { type: "string", description: "判定の理由の説明(100字以内)" },
-    advice: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 3, description: "行動のアドバイス" },
+    advice: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 3, description: "画面の行動を補う、行動のアドバイス" },
     shelters: {
       type: "array",
       items: {
@@ -138,6 +144,8 @@ export function buildFacts({ result, shelters, municipalities, muni, demo }) {
   const needsShelter = ["emergency", "evacuate"].includes(result.status);
   const facts = {
     判定: STATUS_LABELS[result.status],
+    // 区市町村の名前まで(住所・緯度経度は送らない)。「別の区の避難場所」の説明に使う
+    今いる区市町村: municipalityName(municipalities, muni) ?? "不明",
     画面の見出し: result.headline,
     アプリが示している行動: result.actions,
     災害ごとの状況: result.hazards.map((h) => ({
@@ -227,5 +235,29 @@ export async function handleExplain(request, env, { fetchFn = fetch } = {}) {
     console.warn("AI の出力を不採用:", checked.reason);
     return json({ ok: false, reason: `rejected:${checked.reason}` }, 502);
   }
-  return json({ ok: true, model, status: result.status, ...checked.value }, 200);
+  return json({ ok: true, model, status: result.status, ...dropRepeats(checked.value, result, shelters) }, 200);
+}
+
+// 句読点・空白・記号を除いて比べる
+const normalize = (s) => s.replace(/[\s、。,.!?！？・「」『』()()]/g, "");
+
+/**
+ * 検証を通った出力から、画面にすでにある文の繰り返しを取り除く(出力全体は捨てない)。
+ * - アドバイス: 「アプリが示している行動」と同じ内容のもの
+ * - 避難場所への一言: 名前を言い直すだけ・「備考はありません」だけのもの
+ */
+export function dropRepeats(value, result, shelters) {
+  const actions = result.actions.map(normalize);
+  const advice = value.advice.filter((a) => {
+    const n = normalize(a);
+    return !actions.some((act) => act.includes(n) || n.includes(act));
+  });
+  const names = new Map(shelters.map((s) => [s.id, normalize(s.name)]));
+  const comments = value.shelters.filter((s) => {
+    const rest = normalize(s.comment)
+      .replace(names.get(s.id) ?? "", "")
+      .replace(/備考はありません|備考はなし|です|にあります|の避難場所/g, "");
+    return rest.length >= 6;
+  });
+  return { ...value, advice, shelters: comments };
 }

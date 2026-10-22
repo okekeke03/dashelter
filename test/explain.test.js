@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { handleExplain, parseExplainInput } from "../worker/explain.js";
+import { dropRepeats, handleExplain, parseExplainInput } from "../worker/explain.js";
 import { GEMINI_URL, extractText, generateJson } from "../worker/gemini.js";
 
 const WEB = new URL("../web/", import.meta.url);
@@ -154,6 +154,28 @@ test("入力の作り直し:余計な項目は落とし、浸水深の表示名�
     zones: { ...payload().zones, flood: { state: "in", depthMin: 3, depthLabel: "<script>", extra: 1 } },
   });
   assert.deepEqual(input.zones.flood, { state: "in", depthMin: 3, depthLabel: "3〜5m" });
+});
+
+test("画面にすでにある文の繰り返しは取り除く(出力全体は捨てない)", () => {
+  const result = { actions: ["下の一覧の避難所へ向かってください", "冠水した道路、地下道、アンダーパス、川や水路には近づかないでください"] };
+  const shelters = [
+    { id: "A", name: "上野中学校" },
+    { id: "B", name: "第三中学校" },
+    { id: "C", name: "蔵前小学校" },
+  ];
+  const value = {
+    summary: "説明",
+    advice: ["下の一覧の避難所へ向かってください。", "動きやすい靴をはき、両手が空くかばんで移動しましょう"],
+    shelters: [
+      { id: "A", comment: "上野中学校です。" },
+      { id: "B", comment: "荒川区にある第三中学校です。備考はありません。" },
+      { id: "C", comment: "荒川が氾濫するおそれがある場合は開設されません" },
+    ],
+  };
+  const out = dropRepeats(value, result, shelters);
+  assert.deepEqual(out.advice, ["動きやすい靴をはき、両手が空くかばんで移動しましょう"]);
+  // 名前の言い直しだけは落とし、別の区にあること・開設の条件は残す
+  assert.deepEqual(out.shelters.map((s) => s.id), ["B", "C"]);
 });
 
 test("Gemini のレスポンスからテキストを取り出す", () => {
