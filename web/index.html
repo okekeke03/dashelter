@@ -8,6 +8,10 @@
       name="description"
       content="気象庁の警報と国のハザードマップから、大雨のときに「とどまるか・避難するか」を判断し、近くの避難場所まで案内します。"
     />
+    <meta name="theme-color" content="#112d4e" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
     <link rel="stylesheet" href="styles.css" />
     <script src="vendor/leaflet/leaflet.js" defer></script>
@@ -22,6 +26,10 @@
     </header>
 
     <main class="wrap">
+      <div id="offline-banner" class="offline-banner" role="status" hidden>
+        オフラインです。警報やハザードマップを取得できないため、新しい判定はできません。
+      </div>
+
       <section class="controls" aria-label="判定する">
         <button id="locate" class="btn-primary" type="button">現在地で判定する</button>
         <details class="demo">
@@ -39,6 +47,11 @@
       <div id="demo-banner" class="demo-banner" hidden>デモモード:表示中の警報は仮のデータです</div>
 
       <section id="result" hidden aria-label="判定結果">
+        <div id="snapshot-banner" class="snapshot-banner" role="note" hidden>
+          <strong>前回の結果</strong>
+          <p id="snapshot-text"></p>
+        </div>
+
         <div id="status-card" class="status-card">
           <p id="status-label" class="status-label"></p>
           <h2 id="headline" class="headline" tabindex="-1"></h2>
@@ -114,6 +127,13 @@
         </ul>
         <h3>避難場所データのご利用上の注意(国土地理院)</h3>
         <ul id="gsi-notice" class="small"></ul>
+        <h2>この端末に保存するもの</h2>
+        <p>
+          通信できないときにも開けるよう、アプリの画面と、見たことのある地域の避難場所データを保存します。
+          また、最後に確認した結果(判定・避難場所・確認した地点)を、この端末のブラウザにだけ保存します。外部には送りません。
+        </p>
+        <p id="saved-note" class="small"></p>
+        <button id="clear-saved" class="btn-secondary" type="button" hidden>保存した結果を削除する</button>
       </div>
     </footer>
   </body>

@@ -4,6 +4,7 @@
 import { STATUS_LABELS, judge } from "./core/judge.js";
 import { DEMO_PLACES, DEMO_SCENARIOS, demoWarnings } from "./core/demo.js";
 import { describeZone } from "./core/hazardMap.js";
+import { SNAPSHOT_KEY, describeAge, makeSnapshot, parseSnapshot } from "./core/snapshot.js";
 import {
   DESIGNATION_LABELS,
   coverageNotice,
@@ -252,6 +253,66 @@ function explain({ warnings, zones, shelters, muni, demo, status }) {
   });
 }
 
+// ---- 前回の結果(オフラインのときに表示する) ----
+// この端末のブラウザにだけ保存する。保存できない環境(プライベートモードなど)でも判定には影響しない。
+
+function loadSnapshot() {
+  try {
+    return parseSnapshot(localStorage.getItem(SNAPSHOT_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function saveSnapshot(snapshot) {
+  try {
+    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot));
+  } catch {
+    // 保存できなくても、判定の表示には影響しない
+  }
+  updateSavedNote();
+}
+
+function clearSnapshot() {
+  try {
+    localStorage.removeItem(SNAPSHOT_KEY);
+  } catch {
+    // 消せない環境では何もしない
+  }
+  updateSavedNote();
+}
+
+function updateSavedNote() {
+  const snap = loadSnapshot();
+  $("saved-note").textContent = snap
+    ? `この端末に保存している結果:${formatTime(snap.savedAt)}に確認したもの`
+    : "この端末に保存している結果はありません。";
+  $("clear-saved").hidden = !snap;
+}
+
+/** 保存してある前回の結果を、理由と確認した時刻を添えて表示する。なければ false */
+function showSnapshot(reason) {
+  const snap = loadSnapshot();
+  if (!snap) return false;
+  explainSeq++; // 進んでいる AI の説明は使わない
+  $("ai-box").hidden = true;
+  $("demo-banner").hidden = true;
+  render({
+    result: snap.result,
+    origin: snap.origin,
+    shelters: snap.shelters,
+    coverage: snap.coverage,
+    muni: snap.muni,
+    municipalities: snap.municipalities,
+    meta: { demo: false, ...snap.meta },
+  });
+  $("snapshot-text").textContent =
+    `${reason}。${formatTime(snap.savedAt)}(${describeAge(snap.savedAt)})に確認した結果を表示しています。` +
+    "最新の警報ではありません。避難場所までの距離は、そのときに確認した地点からのものです。";
+  $("snapshot-banner").hidden = false;
+  return true;
+}
+
 // ---- 実行 ----
 
 function setProgress(text, isError = false) {
@@ -264,6 +325,11 @@ let running = false;
 
 async function run(origin, demoScenario = null) {
   if (running) return;
+  if (!navigator.onLine) {
+    if (showSnapshot("オフラインのため、新しい判定はできません")) setProgress("");
+    else setProgress("オフラインのため判定できません。通信できる場所で、もう一度試してください。", true);
+    return;
+  }
   running = true;
   document.body.classList.add("is-busy");
   setProgress("危険区域・警報・避難場所を調べています…");
@@ -274,23 +340,27 @@ async function run(origin, demoScenario = null) {
       loadShelterIndex().catch(() => null),
       getSheltersAround(origin).catch(() => []),
     ]);
+    // 住所検索も危険区域も1つも取れなければ、通信できていないとみなし、前回の結果があればそれを出す
+    const unreachable = muni === null && Object.values(zones).every((z) => z.state === "unknown");
+    if (unreachable && !demoScenario && showSnapshot("通信できないため、新しい判定ができませんでした")) {
+      setProgress("");
+      return;
+    }
     const live = demoScenario ? null : await getWarnings(muni);
     const warnings = demoScenario ? demoWarnings(demoScenario) : (live?.levels ?? null);
     const result = judge({ warnings, zones });
     const requirements = result.shelterRequirements.length > 0 ? result.shelterRequirements : REFERENCE_REQUIREMENT;
     const shelters = selectShelters(around, origin, requirements, 3);
     const coverage = coverageNotice(index?.municipalities, muni, result.shelterRequirements);
+    const meta = { demo: Boolean(demoScenario), reportDatetime: live?.reportDatetime, warningsUnknown: warnings === null };
     $("demo-banner").hidden = !demoScenario;
-    render({
-      result,
-      origin,
-      shelters,
-      coverage,
-      muni,
-      municipalities: index?.municipalities,
-      meta: { demo: Boolean(demoScenario), reportDatetime: live?.reportDatetime, warningsUnknown: warnings === null },
-    });
+    $("snapshot-banner").hidden = true;
+    render({ result, origin, shelters, coverage, muni, municipalities: index?.municipalities, meta });
     setProgress("");
+    // デモの結果と、通信できずに判定できなかった結果は保存しない
+    if (!demoScenario && !unreachable) {
+      saveSnapshot(makeSnapshot({ result, origin, shelters, coverage, muni, municipalities: index?.municipalities, meta }));
+    }
     explain({ warnings, zones, shelters, muni, demo: Boolean(demoScenario), status: result.status });
   } catch (e) {
     setProgress(`判定中にエラーが起きました:${e.message}`, true);
@@ -329,7 +399,20 @@ function init() {
   $("demo-scenario").value = "rain4";
   $("locate").addEventListener("click", runHere);
   $("demo-run").addEventListener("click", runDemo);
+  $("clear-saved").addEventListener("click", clearSnapshot);
   renderSources();
+  updateSavedNote();
+
+  // 通信できないときも開けるようにする(登録できない環境でも、通信できれば普通に使える)
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+  const updateOnline = () => {
+    $("offline-banner").hidden = navigator.onLine;
+  };
+  addEventListener("online", updateOnline);
+  addEventListener("offline", updateOnline);
+  updateOnline();
 
   // デモの URL(?demo=場所&scenario=警報)を開くと、そのデモをすぐ表示する。ポートフォリオで共有する用
   const params = new URLSearchParams(location.search);
@@ -340,6 +423,9 @@ function init() {
     $("demo-scenario").value = scenario.id;
     document.querySelector("details.demo").open = true;
     runDemo();
+  } else if (!navigator.onLine) {
+    // オフラインで開いたときは、前回の結果をすぐ出す
+    showSnapshot("オフラインのため、新しい判定はできません");
   }
 }
 

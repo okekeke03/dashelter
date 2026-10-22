@@ -1,0 +1,17 @@
+{
+  "name": "DASHELTER — 大雨のときの避難判断",
+  "short_name": "DASHELTER",
+  "description": "気象庁の警報と国のハザードマップから、大雨のときに「とどまるか・避難するか」を判断し、近くの避難場所まで案内します。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#112d4e",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -148,6 +148,29 @@ summary:focus-visible {
   color: var(--prepare);
 }
 
+.offline-banner {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #37474f;
+  color: #fff;
+  font-weight: 700;
+}
+.snapshot-banner {
+  margin: 8px 0 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--warn-bg);
+  border: 2px dashed var(--warn-border);
+}
+.snapshot-banner p {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}
+#clear-saved {
+  margin-top: 4px;
+}
+
 .demo-banner {
   margin: 8px 0 12px;
   padding: 8px 12px;

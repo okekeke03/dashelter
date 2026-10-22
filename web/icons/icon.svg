@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#112d4e"/>
+  <!-- 避難場所(家) -->
+  <path d="M256 108 L404 226 V352 H108 V226 Z" fill="#ffffff"/>
+  <rect x="226" y="270" width="60" height="82" rx="10" fill="#112d4e"/>
+  <!-- 大雨(水) -->
+  <path d="M100 404 q39 -26 78 0 t78 0 t78 0 t78 0" fill="none" stroke="#6ea8ff" stroke-width="22" stroke-linecap="round"/>
+</svg>
