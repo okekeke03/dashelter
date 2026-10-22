@@ -36,6 +36,20 @@ export function meshesAround(lat, lon) {
   return codes;
 }
 
+/** 距離の表示(「約630m」「約1.2km」)。AI の出力の検証でも同じ表記を使う */
+export const formatDistance = (m) => (m < 1000 ? `約${Math.round(m / 10) * 10}m` : `約${(m / 1000).toFixed(1)}km`);
+
+export const DESIGNATION_LABELS = {
+  flood: "洪水",
+  inland_flood: "内水氾濫",
+  landslide: "土砂災害",
+  storm_surge: "高潮",
+  earthquake: "地震",
+  tsunami: "津波",
+  fire: "大規模な火事",
+  volcano: "火山",
+};
+
 /** 2点間の距離(メートル、球面上の最短距離) */
 export function distanceMeters(a, b) {
   const R = 6371000;

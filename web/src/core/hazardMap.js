@@ -97,6 +97,23 @@ export function mergeZones(zones) {
   return zones.length > 0 && zones.every((z) => z.state === "out") ? { state: "out" } : { state: "unknown" };
 }
 
+/** 浸水深の区分の下限(depthMin)から表示名を求める。不明・凡例にない値は「深さ不明」 */
+export function depthLabelFor(depthMin) {
+  return DEPTH_CLASSES.find((c) => c.min === depthMin)?.label ?? "深さ不明";
+}
+
+/** 浸水深の区分の下限として取りうる値 */
+export const DEPTH_MINS = DEPTH_CLASSES.map((c) => c.min);
+
+/** 区域の判定を、画面や AI への説明用の短い文にする */
+export function describeZone(zone) {
+  if (zone.state === "out") return "区域外";
+  if (zone.state === "unknown") return "確認できず";
+  if (zone.depthLabel) return `区域内(浸水 ${zone.depthLabel})`;
+  if (zone.special) return "区域内(特別警戒区域)";
+  return "区域内";
+}
+
 /**
  * 緯度経度から、タイル番号とタイル内のピクセル位置を求める(Webメルカトル)。
  * @returns {{x: number, y: number, px: number, py: number}}

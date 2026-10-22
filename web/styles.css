@@ -242,6 +242,63 @@ summary:focus-visible {
   margin-top: 6px;
 }
 
+/* AI による補足 */
+.ai-box {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: 10px;
+}
+.ai-title {
+  margin: 0 0 2px;
+  font-size: 1rem;
+}
+.ai-box .small {
+  margin: 0 0 6px;
+}
+.ai-box.is-loading #ai-status::after {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 6px;
+  vertical-align: -0.1em;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-box.is-loading #ai-status::after {
+    animation: none;
+  }
+}
+.ai-summary {
+  margin: 6px 0;
+}
+.ai-advice {
+  margin: 0;
+  padding-left: 20px;
+}
+.ai-comment {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #e3edf9;
+  color: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+  .ai-comment {
+    background: #22324a;
+  }
+}
+
 /* 注意 */
 .notice {
   margin: 0 0 12px;

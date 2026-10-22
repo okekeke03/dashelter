@@ -5,9 +5,12 @@
 // web/_headers は静的ファイルにしか効かないので、API の応答にはここでセキュリティ用のヘッダーを付ける。
 
 import { handleMunicipality } from "./municipality.js";
+import { handleExplain } from "./explain.js";
 
+// パス → メソッドごとの処理
 const ROUTES = {
-  "/api/municipality": handleMunicipality,
+  "/api/municipality": { GET: (request) => handleMunicipality(request) },
+  "/api/explain": { POST: (request, env) => handleExplain(request, env) },
 };
 
 const API_HEADERS = {
@@ -25,16 +28,17 @@ function withHeaders(response) {
 export default {
   /**
    * @param {Request} request
-   * @param {{ASSETS: {fetch: (req: Request) => Promise<Response>}}} env
+   * @param {{ASSETS: {fetch: (req: Request) => Promise<Response>}, GEMINI_API_KEY?: string, GEMINI_MODEL?: string}} env
    */
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
-    const handler = ROUTES[pathname];
-    if (handler) {
-      if (request.method !== "GET") {
-        return withHeaders(new Response("Method Not Allowed", { status: 405, headers: { allow: "GET" } }));
+    const route = ROUTES[pathname];
+    if (route) {
+      const handler = route[request.method];
+      if (!handler) {
+        return withHeaders(new Response("Method Not Allowed", { status: 405, headers: { allow: Object.keys(route).join(", ") } }));
       }
-      return withHeaders(await handler(request));
+      return withHeaders(await handler(request, env));
     }
     if (pathname.startsWith("/api/")) return withHeaders(new Response("Not Found", { status: 404 }));
     return env.ASSETS.fetch(request);

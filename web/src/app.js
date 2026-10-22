@@ -1,31 +1,26 @@
 // 画面の組み立て。判定は core/judge.js、外部データの取得は services.js が担当する。
 // 外部データ(避難場所名・備考など)は必ず textContent で表示し、HTML として解釈させない。
 
-import { judge } from "./core/judge.js";
+import { STATUS_LABELS, judge } from "./core/judge.js";
 import { DEMO_PLACES, DEMO_SCENARIOS, demoWarnings } from "./core/demo.js";
-import { coverageNotice, municipalityName, selectShelters } from "./core/shelters.js";
-import { getCurrentPosition, getMunicipality, getSheltersAround, getWarnings, getZones, loadShelterIndex } from "./services.js";
-
-const STATUS_LABELS = {
-  emergency: "緊急安全確保",
-  evacuate: "避難",
-  prepare: "避難の準備",
-  unknown: "判定できない",
-  stay: "とどまる",
-  caution: "注意",
-  safe: "避難は不要",
-};
-
-const DESIGNATION_LABELS = {
-  flood: "洪水",
-  inland_flood: "内水氾濫",
-  landslide: "土砂災害",
-  storm_surge: "高潮",
-  earthquake: "地震",
-  tsunami: "津波",
-  fire: "大規模な火事",
-  volcano: "火山",
-};
+import { describeZone } from "./core/hazardMap.js";
+import {
+  DESIGNATION_LABELS,
+  coverageNotice,
+  formatDistance,
+  mesh2Code,
+  municipalityName,
+  selectShelters,
+} from "./core/shelters.js";
+import {
+  getCurrentPosition,
+  getMunicipality,
+  getSheltersAround,
+  getWarnings,
+  getZones,
+  loadShelterIndex,
+  requestExplanation,
+} from "./services.js";
 
 // 避難が不要な判定のときに「参考」として出す避難場所(大雨に関係する種別のどれか)
 const REFERENCE_REQUIREMENT = [["flood", "inland_flood", "landslide", "storm_surge"]];
@@ -40,16 +35,6 @@ function el(tag, { className, text, attrs } = {}, children = []) {
   for (const [k, v] of Object.entries(attrs ?? {})) node.setAttribute(k, v);
   for (const child of children) if (child) node.append(child);
   return node;
-}
-
-const formatDistance = (m) => (m < 1000 ? `約${Math.round(m / 10) * 10}m` : `約${(m / 1000).toFixed(1)}km`);
-
-function zoneText(zone) {
-  if (zone.state === "out") return "区域外";
-  if (zone.state === "unknown") return "確認できず";
-  if (zone.depthLabel) return `区域内(浸水 ${zone.depthLabel})`;
-  if (zone.special) return "区域内(特別警戒区域)";
-  return "区域内";
 }
 
 function formatTime(iso) {
@@ -156,7 +141,7 @@ function renderShelters(result, shelters, origin, muni, municipalities) {
     const otherMuni = muni && s.muni !== muni ? municipalityName(municipalities, s.muni) : null;
     const designations = s.hazards.map((h) => DESIGNATION_LABELS[h] ?? h).join("・");
     list.append(
-      el("li", { className: `shelter-card${s.conditional ? " is-conditional" : ""}` }, [
+      el("li", { className: `shelter-card${s.conditional ? " is-conditional" : ""}`, attrs: { "data-shelter-id": s.id } }, [
         el("div", { className: "shelter-head" }, [
           el("span", { className: "pin", text: String(i + 1), attrs: { "aria-hidden": "true" } }),
           el("strong", { className: "shelter-name", text: s.name }),
@@ -187,7 +172,7 @@ function renderBreakdown(result) {
       el("tr", {}, [
         el("th", { text: h.label, attrs: { scope: "row" } }),
         el("td", { text: h.level == null ? "取得できず" : h.warningName ?? "発表なし" }),
-        el("td", { text: zoneText(h.zone) }),
+        el("td", { text: describeZone(h.zone) }),
         el("td", { text: STATUS_LABELS[h.status] }),
       ]),
     );
@@ -207,6 +192,61 @@ function render({ result, origin, shelters, coverage, muni, municipalities, meta
   $("result").hidden = false;
   renderShelters(result, shelters, origin, muni, municipalities);
   $("headline").focus();
+}
+
+// ---- AI による補足 ----
+// 判定・避難場所の表示が終わってから、裏で取りに行く。失敗しても判定の表示には影響しない。
+
+let explainSeq = 0;
+
+function renderAi(state, res = null, status = null) {
+  const box = $("ai-box");
+  const summary = $("ai-summary");
+  const advice = $("ai-advice");
+  const note = $("ai-status");
+  document.querySelectorAll(".ai-comment").forEach((n) => n.remove());
+  summary.replaceChildren();
+  advice.replaceChildren();
+
+  // サーバーに APIキーが設定されていない(AI を使わない構成)なら、欄ごと出さない
+  if (state === "done" && res?.reason === "not-configured") {
+    box.hidden = true;
+    return;
+  }
+  box.hidden = false;
+  box.classList.toggle("is-loading", state === "loading");
+  if (state === "loading") {
+    note.textContent = "AIが説明を作成しています…";
+    return;
+  }
+  // 古い判定に対する説明は使わない(判定が一致するものだけ表示する)
+  if (!res?.ok || res.status !== status) {
+    note.textContent = "AIの補足は表示できませんでした(判定と避難場所の案内には影響しません)。";
+    return;
+  }
+  summary.textContent = res.summary;
+  advice.replaceChildren(...res.advice.map((a) => el("li", { text: a })));
+  for (const s of res.shelters) {
+    const card = document.querySelector(`[data-shelter-id="${CSS.escape(s.id)}"]`);
+    card?.querySelector(".route")?.before(el("p", { className: "ai-comment", text: `AI:${s.comment}` }));
+  }
+  note.textContent = "";
+}
+
+function explain({ warnings, zones, shelters, muni, demo, status }) {
+  const seq = ++explainSeq;
+  renderAi("loading");
+  const payload = {
+    // 送るのは警報レベル・区域の判定・避難場所の ID だけ。正確な現在地は送らない
+    warnings: warnings ? Object.fromEntries(Object.entries(warnings).map(([h, w]) => [h, w.level])) : null,
+    zones,
+    shelters: shelters.map((s) => ({ id: s.id, mesh: mesh2Code(s.lat, s.lon), distanceM: s.distanceM })),
+    muni,
+    demo,
+  };
+  requestExplanation(payload).then((res) => {
+    if (seq === explainSeq) renderAi("done", res, status);
+  });
 }
 
 // ---- 実行 ----
@@ -248,6 +288,7 @@ async function run(origin, demoScenario = null) {
       meta: { demo: Boolean(demoScenario), reportDatetime: live?.reportDatetime, warningsUnknown: warnings === null },
     });
     setProgress("");
+    explain({ warnings, zones, shelters, muni, demo: Boolean(demoScenario), status: result.status });
   } catch (e) {
     setProgress(`判定中にエラーが起きました:${e.message}`, true);
   } finally {

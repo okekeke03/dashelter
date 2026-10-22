@@ -113,6 +113,24 @@ export async function getZones({ lat, lon }) {
   };
 }
 
+/**
+ * AI による説明(サーバー側で事実データを作り直し、出力を検証したもの)。
+ * 使えない・失敗したときは {ok: false, reason} を返す。判定には影響しない。
+ */
+export async function requestExplanation(payload) {
+  try {
+    const res = await fetch("api/explain", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json().catch(() => null);
+    return body ?? { ok: false, reason: `HTTP ${res.status}` };
+  } catch {
+    return { ok: false, reason: "network" };
+  }
+}
+
 /** 現在地の周りの避難場所(データがあるメッシュだけ取得する) */
 export async function getSheltersAround({ lat, lon }) {
   const index = await loadShelterIndex();

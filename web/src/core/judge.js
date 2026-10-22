@@ -12,6 +12,16 @@ import { mergeZones } from "./hazardMap.js";
 // 重い順。全体の判定は、災害ごとの判定のうち一番重いもの。
 export const STATUS_ORDER = ["emergency", "evacuate", "prepare", "unknown", "stay", "caution", "safe"];
 
+export const STATUS_LABELS = {
+  emergency: "緊急安全確保",
+  evacuate: "避難",
+  prepare: "避難の準備",
+  unknown: "判定できない",
+  stay: "とどまる",
+  caution: "注意",
+  safe: "避難は不要",
+};
+
 export const HEADLINES = {
   emergency: "命の危険があります。直ちに身の安全を確保してください",
   evacuate: "ここは危険な区域です。今すぐ避難してください",

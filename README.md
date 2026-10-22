@@ -26,6 +26,8 @@ Node.js(v24 で確認)だけで動きます。追加のインストールは不�
 npm run dev     # → http://localhost:8788
 ```
 
+AI による補足を手元で試すには、リポジトリのルートに `.dev.vars` を作り、`GEMINI_API_KEY=...` と書きます(git には入りません)。なくても、判定と避難場所の案内は動きます。
+
 ## 公開
 
 Cloudflare Workers(無料プラン)で公開しています。GitHub の `main` ブランチに push すると、Workers Builds が `npx wrangler deploy` を実行して自動で更新されます。
@@ -35,7 +37,7 @@ Cloudflare Workers(無料プラン)で公開しています。GitHub の `main` 
 | フォルダ | 内容 |
 |---|---|
 | `web/` | 画面(静的サイト)。`src/core/` が判定ルールなどの中心部分、`data/` が整形済みデータ、`vendor/` が地図ライブラリ(Leaflet 1.9.4) |
-| `worker/` | サーバー処理(Cloudflare Workers)。住所検索の中継 |
+| `worker/` | サーバー処理(Cloudflare Workers)。住所検索の中継、AI による補足(Gemini)と出力の検証 |
 | `wrangler.jsonc` | Cloudflare Workers の設定(`web/` を静的ファイルとして配信し、`/api/*` を Worker で処理) |
 | `scripts/` | データ整形の Python スクリプト、開発用サーバー |
 | `test/` | テスト |
