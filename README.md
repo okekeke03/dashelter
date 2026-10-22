@@ -3,7 +3,7 @@
 大雨のとき「今いる場所にとどまるべきか、避難すべきか」を判断し、避難が必要なら近くの安全な避難所まで案内する Web アプリ。
 
 **公開中:https://dashelter.okekeke03.workers.dev**
-(デモ:[江戸川区でレベル4大雨危険警報](https://dashelter.okekeke03.workers.dev/?demo=edogawa&scenario=rain4) / [北区でレベル4大雨危険警報](https://dashelter.okekeke03.workers.dev/?demo=kita&scenario=rain4))
+(デモ:[江戸川区でレベル4大雨危険警報](https://dashelter.okekeke03.workers.dev/?demo=edogawa&scenario=rain4) / [北区でレベル4大雨危険警報](https://dashelter.okekeke03.workers.dev/?demo=kita&scenario=rain4) / [岡山県倉敷市 真備町](https://dashelter.okekeke03.workers.dev/?demo=mabi&scenario=rain4) / [広島市安佐北区で土砂災害危険警報](https://dashelter.okekeke03.workers.dev/?demo=hiroshima&scenario=landslide4))
 
 > **開発中** — チーム開発で作ったプロトタイプ(3日間・AWS Cloud9)を、個人で設計からやり直しています。
 
@@ -15,6 +15,7 @@
 - **取得できなかった値は「不明」と表示する。** 失敗したときに 0m・0mm のような、事実に見える値を出しません。
 - **デモモード。** 晴れの日でも、大雨警報や特別警報が出ているときの動きを確認できます(画面に「デモ」と明示します)。`?demo=edogawa&scenario=rain4` のような URL で、特定のデモを直接開けます。
 - **最終的な判断は利用者に委ねる。** どの判定でも「参考情報であり、最終的な判断はご自身で」と表示します。
+- **全国で使える。** 警報・ハザードマップ・避難場所(約11万6千件)とも全国のデータを使います。避難場所は約10km四方ごとに分けてあり、画面は現在地の周りの分だけを読み込みます。
 
 詳しくは [docs/design.md](docs/design.md) を参照してください。
 
@@ -45,11 +46,11 @@ Cloudflare Workers(無料プラン)で公開しています。GitHub の `main` 
 
 ## 避難所データの作り方
 
-国土地理院のデータをダウンロードし、2次メッシュ(約10km四方)ごとに分けて `web/data/shelters/` に書き出します。Python 3 の標準ライブラリだけで動きます。
+国土地理院のデータをダウンロードし、2次メッシュ(約10km四方)ごとに分けて `web/data/shelters/` に書き出します。Python 3 の標準ライブラリだけで動きます。前回より件数が大きく減った場合や、除外が多すぎる場合は、壊れたデータとみなして書き出しません。
 
 ```sh
-python -I scripts/build_shelters.py            # 東京都
-python -I scripts/build_shelters.py 13 14      # 複数の都道府県
+python -I scripts/build_shelters.py            # 全国
+python -I scripts/build_shelters.py 13 14      # 一部の都道府県だけ(手元での確認用)
 python -I scripts/build_jma_areas.py           # 気象庁の地域コード表(市町村 → 府県予報区)
 ```
 
@@ -73,7 +74,7 @@ python -I -m unittest discover -s scripts     # データ整形
 
 - **川ごとの氾濫情報(荒川の氾濫危険警報など)は判定していません。** 上流の大雨で川があふれるケースは、このアプリの判定ではとらえられません。洪水浸水想定区域の中にいるときは、その旨と「川の防災情報」(国土交通省)へのリンクを表示します。
 - **内水(下水道などがあふれる浸水)のハザードマップは、公開されていない地域があります。** その地域では区域の外として扱われます。
-- **避難場所データが公開されていない区市町村があります。** 東京都では江東5区(墨田・江東・足立・葛飾・江戸川)を含む 17 区市町村で、大雨に関係する避難場所がデータ上ありません(2026-10-19 時点)。詳しくは [docs/design.md](docs/design.md) を参照してください。
+- **避難場所データが公開されていない区市町村があります。** 全国 1,747 区市町村のうち 108 区市町村で、大雨に関係する避難場所がデータ上ありません(2026-10-22 時点)。東京都では江東5区(墨田・江東・足立・葛飾・江戸川)を含む 17 区市町村が該当します。その場合は画面で知らせ、他の区市町村の避難場所を明示して表示します。詳しくは [docs/design.md](docs/design.md) を参照してください。
 
 ## 注意
 

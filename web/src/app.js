@@ -10,6 +10,7 @@ import {
   formatDistance,
   mesh2Code,
   municipalityName,
+  registeredMuni,
   selectShelters,
 } from "./core/shelters.js";
 import {
@@ -137,8 +138,10 @@ function renderShelters(result, shelters, origin, muni, municipalities) {
       }),
     );
   }
+  // 政令指定都市は区ではなく市の単位で比べる(避難場所データが市の単位のため)
+  const here = registeredMuni(municipalities, muni);
   shelters.forEach((s, i) => {
-    const otherMuni = muni && s.muni !== muni ? municipalityName(municipalities, s.muni) : null;
+    const otherMuni = here && s.muni !== here ? municipalityName(municipalities, s.muni) : null;
     const designations = s.hazards.map((h) => DESIGNATION_LABELS[h] ?? h).join("・");
     list.append(
       el("li", { className: `shelter-card${s.conditional ? " is-conditional" : ""}`, attrs: { "data-shelter-id": s.id } }, [

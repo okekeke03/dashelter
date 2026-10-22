@@ -143,6 +143,11 @@ test("不正な入力は 400。自由な文章は受け付けない", async () =
   assert.equal(gemini.calls.length, 0);
 });
 
+test("末尾が英字の共通ID(例: E206020000520A)も受け付ける", () => {
+  const input = parseExplainInput({ ...payload(), shelters: [{ id: "E206020000520A", mesh: "543872", distanceM: 10 }] });
+  assert.equal(input.shelters[0].id, "E206020000520A");
+});
+
 test("大きすぎる入力は 413", async () => {
   const res = await handleExplain(post("x".repeat(5000)), env);
   assert.equal(res.status, 413);

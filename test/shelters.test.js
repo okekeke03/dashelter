@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import {
   HAZARD_MAP_PORTAL,
   coverageNotice,
+  registeredMuni,
   distanceMeters,
   mesh2Bounds,
   mesh2Code,
@@ -123,7 +124,28 @@ test("データの空白:災害ごとに判断する(中央区は洪水の指定
   assert.ok(coverageNotice(index.municipalities, "13102", [["landslide"]]));
 });
 
-test("データの空白:東京都以外(データの対象外)", () => {
-  assert.match(coverageNotice(index.municipalities, "14104", RAIN).text, /対象外/);
-  assert.match(coverageNotice(index.municipalities, null, RAIN).text, /対象外/);
+test("全国のデータが入っている(47都道府県)", () => {
+  const prefs = new Set(Object.keys(index.municipalities).map((c) => c.slice(0, 2)));
+  assert.equal(prefs.size, 47);
+  assert.equal(index.source.prefectures, "all");
+  assert.ok(index.count > 100000, String(index.count));
+});
+
+test("政令指定都市の区のコードは、市のコードにそろえる(避難場所データは市の単位)", () => {
+  assert.equal(registeredMuni(index.municipalities, "14104"), "14100"); // 横浜市中区 → 横浜市
+  assert.equal(registeredMuni(index.municipalities, "14133"), "14130"); // 川崎市中原区 → 川崎市
+  assert.equal(registeredMuni(index.municipalities, "01110"), "01100"); // 札幌市清田区 → 札幌市
+  assert.equal(registeredMuni(index.municipalities, "13117"), "13117"); // 東京の特別区はそのまま
+  assert.equal(registeredMuni(index.municipalities, "99999"), null);
+  assert.equal(municipalityName(index.municipalities, "14104"), "横浜市");
+});
+
+test("データの空白:政令指定都市の区にいても、市のデータで判断する", () => {
+  // 横浜市には洪水などに指定された避難場所があるので、注意は出さない
+  assert.equal(coverageNotice(index.municipalities, "14104", RAIN), null);
+});
+
+test("データの空白:現在地の区市町村が分からないときは、その旨を伝える", () => {
+  assert.match(coverageNotice(index.municipalities, null, RAIN).text, /見つかりませんでした/);
+  assert.match(coverageNotice(index.municipalities, "99999", RAIN).text, /見つかりませんでした/);
 });

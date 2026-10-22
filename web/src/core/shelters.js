@@ -87,9 +87,25 @@ export const HAZARD_MAP_PORTAL = {
   url: "https://disaportal.gsi.go.jp/hazardmap/",
 };
 
+/**
+ * 市町村コードを、避難場所データに登録されている単位のコードにそろえる。
+ * 政令指定都市は区ではなく市のコードで登録されているので、区のコードは市のコードにたどる
+ * (例: 横浜市中区 14104 → 横浜市 14100。住所検索は区のコードを返す)。
+ */
+export function registeredMuni(municipalities, muni) {
+  if (!muni || !municipalities) return null;
+  if (municipalities[muni]) return muni;
+  return (
+    Object.keys(municipalities)
+      .filter((c) => c.slice(0, 3) === muni.slice(0, 3) && c <= muni)
+      .sort()
+      .at(-1) ?? null
+  );
+}
+
 /** 「東京都江戸川区」→「江戸川区」 */
 export function municipalityName(municipalities, muni) {
-  const name = municipalities?.[muni]?.name;
+  const name = municipalities?.[registeredMuni(municipalities, muni)]?.name;
   return name ? name.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, "") : null;
 }
 
@@ -104,10 +120,10 @@ export function municipalityName(municipalities, muni) {
  */
 export function coverageNotice(municipalities, muni, requirements) {
   if (requirements.length === 0) return null;
-  const entry = muni ? municipalities?.[muni] : null;
+  const entry = municipalities?.[registeredMuni(municipalities, muni)];
   if (!entry) {
     return {
-      text: "現在地の区市町村は、このアプリの避難場所データの対象外です(現在は東京都のみ)。区市町村のハザードマップと避難情報を確認してください。",
+      text: "現在地の区市町村が、国土地理院の避難場所データに見つかりませんでした。区市町村のハザードマップと避難情報を確認してください。",
       link: HAZARD_MAP_PORTAL,
     };
   }

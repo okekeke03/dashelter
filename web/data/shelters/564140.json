@@ -1,0 +1,1 @@
+[{"id":"E0720900008201","muni":"07209","name":"立切防災集合所","address":"福島県相馬市蒲庭字舘前23-1","lat":37.729532,"lon":141.005384,"hazards":["flood","earthquake","fire","inland_flood"],"alsoShelter":false,"note":""},{"id":"E0721200050201","muni":"07212","name":"宮田公園","address":"福島県南相馬市鹿島区烏崎字宮田地内","lat":37.674493,"lon":141.010629,"hazards":["tsunami"],"alsoShelter":false,"note":""}]

@@ -7,6 +7,9 @@ export const DEMO_PLACES = [
   { id: "edogawa", label: "江戸川区役所(浸水3m以上の想定)", lat: 35.7067, lon: 139.8683 },
   { id: "taito", label: "台東区役所(条件付きの避難場所あり)", lat: 35.7126, lon: 139.78 },
   { id: "ome", label: "青梅市(土砂災害警戒区域)", lat: 35.794886, lon: 139.250304 },
+  // 東京都以外(全国のデータで動くことの確認用)
+  { id: "mabi", label: "岡山県倉敷市 真備町(浸水5m以上の想定)", lat: 34.637578, lon: 133.695556 },
+  { id: "hiroshima", label: "広島市安佐北区(土砂災害警戒区域)", lat: 34.495301, lon: 132.473756 },
 ];
 
 export const DEMO_SCENARIOS = [

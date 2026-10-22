@@ -96,7 +96,8 @@ export function parseExplainInput(body) {
 
   if (!Array.isArray(body.shelters) || body.shelters.length > 3) throw new BadRequest("shelters");
   const shelters = body.shelters.map((s) => {
-    if (typeof s?.id !== "string" || !/^[A-Z]\d{13}$/.test(s.id)) throw new BadRequest("shelter id");
+    // 共通ID は「E + 13桁」。末尾が英字のもの(例: E206020000520A)もある
+    if (typeof s?.id !== "string" || !/^[A-Z][0-9A-Z]{13}$/.test(s.id)) throw new BadRequest("shelter id");
     if (typeof s.mesh !== "string" || !/^\d{6}$/.test(s.mesh)) throw new BadRequest("shelter mesh");
     if (!Number.isInteger(s.distanceM) || s.distanceM < 0 || s.distanceM > 100000) throw new BadRequest("distance");
     return { id: s.id, mesh: s.mesh, distanceM: s.distanceM };

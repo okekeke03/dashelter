@@ -1,0 +1,1 @@
+[{"id":"E0166200001201","muni":"01662","name":"トライベツ地区集会所周辺","address":"北海道厚岸町トライベツ170","lat":43.214539,"lon":144.925429,"hazards":["fire"],"alsoShelter":false,"note":""},{"id":"E0166200002201","muni":"01662","name":"トライベツ地区集会所","address":"北海道厚岸町トライベツ170-1","lat":43.214325,"lon":144.925443,"hazards":["flood","landslide","earthquake"],"alsoShelter":true,"note":""}]

@@ -134,7 +134,8 @@ export async function requestExplanation(payload) {
 /** 現在地の周りの避難場所(データがあるメッシュだけ取得する) */
 export async function getSheltersAround({ lat, lon }) {
   const index = await loadShelterIndex();
-  const codes = meshesAround(lat, lon).filter((c) => c in index.meshes);
+  const available = new Set(index.meshes);
+  const codes = meshesAround(lat, lon).filter((c) => available.has(c));
   const lists = await Promise.all(codes.map((c) => once(`mesh:${c}`, () => getJson(`data/shelters/${c}.json`))));
   return lists.flat();
 }
